@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Digital Clicker</title>
+    <style>
+        /* CSS for minimalist style and color changing background */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            cursor: pointer; /* Indicates it's clickable */
+            user-select: none; /* Prevents text selection on rapid clicking */
+            animation: bgColorChange 15s infinite alternate; /* Background animation */
+        }
+
+        /* The animation for background colors: black, white, and colorful */
+        @keyframes bgColorChange {
+            0%   { background-color: #000000; } /* Black */
+            10%  { background-color: #ffffff; } /* White */
+            20%  { background-color: #ff3b30; } /* Red */
+            30%  { background-color: #4cd964; } /* Green */
+            40%  { background-color: #007aff; } /* Blue */
+            50%  { background-color: #000000; } /* Black */
+            60%  { background-color: #ffcc00; } /* Yellow */
+            70%  { background-color: #ffffff; } /* White */
+            80%  { background-color: #ff2d55; } /* Pink */
+            90%  { background-color: #5856d6; } /* Purple */
+            100% { background-color: #000000; } /* Black */
+        }
+
+        /* Minimalist display for the timer */
+        #timer-display {
+            font-size: 15vw;
+            font-weight: 200;
+            color: #ffffff;
+            mix-blend-mode: difference; /* Ensures text is always visible regardless of background color */
+            letter-spacing: -2px;
+            transition: transform 0.1s ease;
+        }
+
+        /* Subtle click effect */
+        #timer-display:active {
+            transform: scale(0.95);
+        }
+
+        /* Instruction text */
+        .instruction {
+            position: absolute;
+            bottom: 30px;
+            font-size: 1.2rem;
+            color: #ffffff;
+            mix-blend-mode: difference;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The stopwatch format display -->
+    <div id="timer-display">00:00:00</div>
+    
+    <div class="instruction">Click anywhere to add 1 second</div>
+
+    <script>
+        // JavaScript logic for the clicker
+        let totalSeconds = 0;
+        const display = document.getElementById('timer-display');
+
+        // Function to format seconds into standard stopwatch format (HH:MM:SS)
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            
+            // If hours are 0, we can just show MM:SS for a more minimalist look, 
+            // but standard stopwatch format includes hours. We'll stick to HH:MM:SS
+            return `${h}:${m}:${s}`;
+        }
+
+        // Add 1 second every time the screen is clicked
+        document.body.addEventListener('click', () => {
+            totalSeconds++;
+            display.textContent = formatTime(totalSeconds);
+        });
+    </script>
+</body>
+</html>
