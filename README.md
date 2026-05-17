@@ -23,24 +23,7 @@ The page is a collection of interactive tools – a “Clicker Arcade” with 32
 
 ```
 
-User Input (Click/Tap)
-|
-v
-[ Event Dispatcher ]
-|
-v
-[ Calculation Engine ]  <—— pure JavaScript functions
-|
-v
-[ State Update ]  ——> [ DOM Manipulation (display) ]
-|
-v
-[ Animation Loop ]  ——> [ Visual Feedback (glow, scroll, count‑up) ]
-|
-v
-[ Scroll to Next Module ]
-
-```
+l love you forever 
 
 No virtual DOM or framework is used; all rendering happens through direct, targeted updates to the DOM tree.
 
