@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clicker Arcade | 32 Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory;height:100%}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;height:100%;background:#000;color:#fff;overflow-x:hidden}
+
+.section{
+  min-height:100vh;height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;position:relative;
+  scroll-snap-align:start;padding:30px 20px
+}
+
+h1{font-size:10vw;font-weight:100;letter-spacing:-0.02em;margin:0;line-height:1}
+h2{font-size:11px;font-weight:400;letter-spacing:5px;text-transform:uppercase;color:#888;margin-top:6px}
+.click-area{cursor:pointer;transition:transform .15s;user-select:none}
+.click-area:active{transform:scale(.96)}
+.stat-row{display:flex;gap:30px;margin-top:20px;flex-wrap:wrap;justify-content:center}
+.st{text-align:center}
+.st .num{font-size:30px;font-weight:200}
+.st .lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#888;margin-top:4px}
+
+nav{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:8px}
+nav a{width:6px;height:6px;border-radius:50%;background:#fff;display:block;opacity:.25;transition:all .3s}
+nav a.active,nav a:hover{opacity:1;transform:scale(1.6)}
+
+.scroll-hint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#666;animation:bob 2s infinite}
+@keyframes bob{0%,100%{opacity:.25;transform:translateX(-50%) translateY(0)}50%{opacity:.8;transform:translateX(-50%) translateY(5px)}}
+
+.particle{position:fixed;pointer-events:none;z-index:999;animation:floatUp 1s ease-out forwards;font-weight:700}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(.8);opacity:1}
+  100%{transform:translateY(-130px) scale(1.5);opacity:0}
+}
+@keyframes popIn{
+  0%{transform:scale(0) rotate(-10deg);opacity:0}
+  60%{transform:scale(1.2) rotate(2deg);opacity:1}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+
+.big-num{font-size:17vw;font-weight:100;line-height:1;word-break:break-all;max-width:90vw;text-align:center}
+
+.btn{
+  padding:12px 40px;font-size:11px;font-weight:500;letter-spacing:6px;
+  text-transform:uppercase;border:1px solid currentColor;background:transparent;
+  cursor:pointer;transition:all .2s;font-family:inherit;color:inherit
+}
+.btn:hover{background:#fff;color:#000}
+.btn:active{transform:scale(.95)}
+
+.progress-bar{width:260px;height:4px;background:#333;border-radius:2px;margin-top:16px;overflow:hidden}
+.progress-fill{height:100%;background:#fff;transition:width .15s;border-radius:2px}
+
+.eq{font-size:13px;color:#888;font-family:monospace;margin:4px 0;letter-spacing:1px}
+.math-btn{font-size:40px;font-weight:200;letter-spacing:2px;cursor:pointer;padding:10px 40px;border:1px solid currentColor;background:transparent;color:inherit;font-family:inherit;transition:all .2s;user-select:none}
+.math-btn:hover{background:rgba(255,255,255,.1)}
+.math-btn:active{transform:scale(.95)}
+
+.s1{background:#fff;color:#000}
+.s2{background:#000;color:#fff}
+.s3{background:#0a0a0a;color:#fff}
+.s4{background:#1a1a1a;color:#fff}
+.s5{background:#eee;color:#111}
+.s6{background:#111;color:#fff}
+.s7{background:#222;color:#fff}
+.s8{background:#fafafa;color:#000}
+.s9{background:#050505;color:#fff}
+.s10{background:#2a2a2a;color:#fff}
+.s11{background:#fff;color:#000}
+.s12{background:#181818;color:#fff}
+.s13{background:#0d0d0d;color:#fff}
+.s14{background:#e8e8e8;color:#111}
+.s15{background:#1c1c2e;color:#e0e8ff}
+.s16{background:#1a3a1a;color:#e0ffe0}
+.s17{background:#0f3460;color:#e0f0ff}
+.s18{background:#fafafa;color:#111}
+.s19{background:#2d1b4e;color:#ffe0ff}
+.s20{background:#1a0a0a;color:#ffe0e0}
+.s21{background:#0a1a2a;color:#e0f0ff}
+.s22{background:#1a0a1a;color:#ffe0ff}
+.s23{background:#fff;color:#000}
+.s24{background:#1a1a2e;color:#e0e0ff}
+.s25{background:#0d0d1a;color:#e0ffe0}
+.s26{background:#1a0a0a;color:#ffe0e0}
+.s27{background:#e8e0d0;color:#1a1a00}
+.s28{background:#0a1a1a;color:#e0ffe0}
+.s29{background:#111;color:#ffe0a0}
+.s30{background:#050525;color:#e0e0ff}
+.s31{background:#1a1510;color:#ffe0d0}
+.s32{background:#d8d8e8;color:#111}
+.s33{background:#000;color:#fff}
+
+.aim-arena{
+  position:relative;width:340px;height:340px;margin:10px 0;
+  border:2px solid rgba(255,255,255,.25);border-radius:12px;overflow:hidden;cursor:crosshair
+}
+.aim-target{
+  position:absolute;border-radius:50%;cursor:pointer;
+  transition:transform .08s;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;user-select:none;animation:popIn .2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards
+}
+.aim-target:hover{transform:scale(1.1)}
+.aim-target:active{transform:scale(.85)}
+
+.react-btn{
+  font-size:14px;font-weight:500;letter-spacing:4px;padding:16px 50px;
+  border:1px solid #555;border-radius:60px;margin:10px 0;cursor:pointer;
+  user-select:none;transition:all .2s;font-family:inherit;color:inherit;background:transparent
+}
+.react-btn:hover{opacity:.8}
+.react-btn:active{transform:scale(.96)}
+</style>
+</head>
+<body>
+
+<nav id="nav"></nav>
+
+<!-- 01. Pi Digits -->
+<section class="section s1" id="sec1">
+  <h1>&pi;</h1><h2>01 &middot; Pi Digit Revealer</h2>
+  <div class="click-area" id="piArea" style="text-align:center;margin-top:20px">
+    <div id="piRow" style="font-size:22px;font-weight:600;letter-spacing:4px;word-break:break-all;line-height:1.7;max-width:700px">3.</div>
+    <div style="font-size:10px;letter-spacing:3px;color:#bbb;margin-top:8px">TAP HERE</div>
+  </div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="piCount">0</div><div class="lbl">Pi Digits</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 02. Powers of 2 -->
+<section class="section s2" id="sec2">
+  <div class="big-num" id="dblVal">2</div>
+  <h2>02 &middot; Powers of 2</h2>
+  <div class="eq" id="dblEq">2^1 = 2</div>
+  <button class="btn" id="dblBtn">x2 NEXT POWER</button>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="dblCount">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 03. Square Numbers -->
+<section class="section s3" id="sec3">
+  <h1 id="sqVal">1</h1><h2>03 &middot; Square Numbers</h2>
+  <div class="eq" id="sqEq">1&sup2; = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="sqN">1</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="sqClicks">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 04. Triangular Numbers -->
+<section class="section s4" id="sec4">
+  <h1 id="triVal">1</h1><h2>04 &middot; Triangular Numbers</h2>
+  <div class="eq" id="triEq">T(1) = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="triN">1</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="triClicks">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 05. GCD -->
+<section class="section s5" id="sec5">
+  <h1 id="gcdResult" style="font-size:6vw">--</h1><h2>05 &middot; GCD Calculator</h2>
+  <div class="eq" id="gcdPair">A = ?  B = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="gcdCount">0</div><div class="lbl">Solved</div></div>
+    <div class="st"><div class="num" id="gcdTime">--</div><div class="lbl">Time (ms)</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 06. Fibonacci -->
+<section class="section s6" id="sec6">
+  <h1 id="fibNum">0</h1><h2>06 &middot; Fibonacci Sequence</h2>
+  <div style="display:flex;gap:8px;font-size:14px;font-weight:300;margin:8px 0" id="fibSeq">0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="fibStep">0</div><div class="lbl">Step</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 07. Prime Numbers -->
+<section class="section s7" id="sec7">
+  <h1 id="primeNum">2</h1><h2>07 &middot; Prime Number Generator</h2>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="primeIdx">1</div><div class="lbl">Nth Prime</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 08. Random Integer -->
+<section class="section s8" id="sec8">
+  <h1 id="randVal" style="font-size:16vw">--</h1><h2>08 &middot; Random Integer (1-100)</h2>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="randRolls">0</div><div class="lbl">Rolls</div></div>
+    <div class="st"><div class="num" id="randSum">0</div><div class="lbl">Sum</div></div>
+    <div class="st"><div class="num" id="randAvg">--</div><div class="lbl">Average</div></div>
+    <div class="st"><div class="num" id="randMin">--</div><div class="lbl">Min</div></div>
+    <div class="st"><div class="num" id="randMax">--</div><div class="lbl">Max</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 09. Binary Counter -->
+<section class="section s9" id="sec9">
+  <h1 id="binNumDec">0</h1><h2>09 &middot; Binary Counter</h2>
+  <div style="font-size:16px;letter-spacing:2px;font-family:monospace;margin:8px 0;word-break:break-all;max-width:90vw;text-align:center" id="binNumBin">0</div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 10. Factorial -->
+<section class="section s10" id="sec10">
+  <h1 id="factNum">1</h1><h2>10 &middot; Factorial</h2>
+  <div style="font-size:12px;color:#888" id="factExpr">0! = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="factN">0</div><div class="lbl">n</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 11. Modular Counter -->
+<section class="section s11" id="sec11">
+  <h1 id="modVal">0</h1><h2>11 &middot; Modular Counter (mod 7)</h2>
+  <div class="eq" id="modEq">0 mod 7 = 0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="modClicks">0</div><div class="lbl">Clicks</div></div>
+    <div class="st"><div class="num" id="modCycles">0</div><div class="lbl">Cycles</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 12. Digit Sum -->
+<section class="section s12" id="sec12">
+  <h1 id="dsNum" style="font-size:12vw">--</h1><h2>12 &middot; Digit Sum</h2>
+  <div class="eq" id="dsSum">Sum of digits = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="dsClicks">0</div><div class="lbl">Solved</div></div>
+    <div class="st"><div class="num" id="dsTotalSum">0</div><div class="lbl">Total Sum</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 13. Cubic Numbers -->
+<section class="section s13" id="sec13">
+  <h1 id="cubeVal">1</h1><h2>13 &middot; Cubic Numbers</h2>
+  <div class="eq" id="cubeEq">1&sup3; = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="cubeN">1</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="cubeClicks">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 14. Collatz -->
+<section class="section s14" id="sec14">
+  <h1 id="colVal">--</h1><h2>14 &middot; Collatz Sequence</h2>
+  <div class="eq" id="colStep">Start: ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="colSteps">0</div><div class="lbl">Steps</div></div>
+    <div class="st"><div class="num" id="colStart">--</div><div class="lbl">Start N</div></div>
+    <div class="st"><div class="num" id="colBest">--</div><div class="lbl">Best Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 15. Harmonic Series -->
+<section class="section s15" id="sec15">
+  <h1 id="harmSum" style="font-size:6vw">0</h1><h2>15 &middot; Harmonic Series H(n)</h2>
+  <div class="eq" id="harmEq">H(0) = 0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="harmN">0</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="harmLast">--</div><div class="lbl">Last Term</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 16. Pascal's Triangle -->
+<section class="section s16" id="sec16">
+  <h1 id="pascalRow" style="font-size:4vw;letter-spacing:2px">1</h1><h2>16 &middot; Pascal's Triangle</h2>
+  <div class="eq" id="pascalN">Row 0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="pascalRowNum">0</div><div class="lbl">Row</div></div>
+    <div class="st"><div class="num" id="pascalSum">1</div><div class="lbl">Row Sum</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 17. Pentagonal Numbers -->
+<section class="section s17" id="sec17">
+  <h1 id="pentVal">1</h1><h2>17 &middot; Pentagonal Numbers</h2>
+  <div class="eq" id="pentEq">P(1) = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="pentN">1</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="pentClicks">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 18. Integer Sqrt -->
+<section class="section s18" id="sec18">
+  <h1 id="isqrtResult" style="font-size:8vw">--</h1><h2>18 &middot; Integer Square Root</h2>
+  <div class="eq" id="isqrtEq">isqrt(?) = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="isqrtCount">0</div><div class="lbl">Solved</div></div>
+    <div class="st"><div class="num" id="isqrtScore">0</div><div class="lbl">Score</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 19. LCM -->
+<section class="section s19" id="sec19">
+  <h1 id="lcmResult" style="font-size:6vw">--</h1><h2>19 &middot; LCM Calculator</h2>
+  <div class="eq" id="lcmPair">A = ?  B = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="lcmCount">0</div><div class="lbl">Solved</div></div>
+    <div class="st"><div class="num" id="lcmTime">--</div><div class="lbl">Time (ms)</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 20. Reaction Time -->
+<section class="section s20" id="sec20">
+  <h1 id="reactResult" style="font-size:40px;font-weight:200">READY</h1><h2>20 &middot; Reaction Time</h2>
+  <div class="react-btn" id="reactBtn">START</div>
+  <div style="font-size:11px;letter-spacing:2px;color:#888;margin-top:4px">CLICK TO START — WAIT — CLICK WHEN GREEN</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="reactBest">--</div><div class="lbl">Best (ms)</div></div>
+    <div class="st"><div class="num" id="reactAvg">--</div><div class="lbl">Avg (ms)</div></div>
+    <div class="st"><div class="num" id="reactCount">0</div><div class="lbl">Attempts</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 21. CPS Speed Test -->
+<section class="section s21" id="sec21">
+  <h1 id="cpsScore">0</h1><h2>21 &middot; CPS Speed Test (5 sec)</h2>
+  <div class="click-area" style="font-size:40px;margin:10px 0;padding:20px 60px;border:1px solid #555;border-radius:60px" id="cpsBtn">CLICK TO START</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="cpsResult">--</div><div class="lbl">CPS</div></div>
+    <div class="st"><div class="num" id="cpsTime">5.0</div><div class="lbl">Seconds Left</div></div>
+    <div class="st"><div class="num" id="cpsBest">--</div><div class="lbl">Best CPS</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 22. Aim Trainer -->
+<section class="section s22" id="sec22">
+  <h1 id="aimScore">0</h1><h2>22 &middot; Aim Trainer (30s)</h2>
+  <div style="font-size:24px;font-family:monospace;font-weight:200;margin:4px 0" id="aimTimer">30.0</div>
+  <div class="aim-arena" id="aimArena"></div>
+  <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:360px;margin:4px 0;min-height:22px" id="aimTrail"></div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="aimHits">0</div><div class="lbl">Hits</div></div>
+    <div class="st"><div class="num" id="aimMiss">0</div><div class="lbl">Misses</div></div>
+    <div class="st"><div class="num" id="aimAcc">--%</div><div class="lbl">Accuracy</div></div>
+    <div class="st"><div class="num" id="aimStreak">0</div><div class="lbl">Streak</div></div>
+    <div class="st"><div class="num" id="aimBest">0</div><div class="lbl">Best Score</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 23. 10s Sprint -->
+<section class="section s23" id="sec23">
+  <h1 id="sprintScore">0</h1><h2>23 &middot; 10-Second Sprint</h2>
+  <div class="react-btn" id="sprintBtn">CLICK TO START</div>
+  <div style="font-size:24px;font-family:monospace;font-weight:200;margin:4px 0" id="sprintTimer">10.0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="sprintCPS">--</div><div class="lbl">CPS</div></div>
+    <div class="st"><div class="num" id="sprintBest">--</div><div class="lbl">Best CPS</div></div>
+    <div class="st"><div class="num" id="sprintRounds">0</div><div class="lbl">Rounds</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 24. Sum of Squares -->
+<section class="section s24" id="sec24">
+  <h1 id="sosVal">1</h1><h2>24 &middot; Sum of Squares</h2>
+  <div class="eq" id="sosEq">1&sup2; = 1</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="sosN">1</div><div class="lbl">n</div></div>
+    <div class="st"><div class="num" id="sosClicks">0</div><div class="lbl">Steps</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 25. Tap Tempo BPM -->
+<section class="section s25" id="sec25">
+  <h1 id="bpmVal" style="font-size:12vw;font-family:monospace">--</h1><h2>25 &middot; Tap Tempo (BPM)</h2>
+  <div style="font-size:12px;letter-spacing:2px;color:#888;margin-top:4px">TAP STEADILY TO MEASURE BPM</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="bpmCount">0</div><div class="lbl">Taps</div></div>
+    <div class="st"><div class="num" id="bpmAvg">--</div><div class="lbl">Avg BPM</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 26. Number Mirror -->
+<section class="section s26" id="sec26">
+  <h1 id="mirrorNum" style="font-size:10vw">--</h1><h2>26 &middot; Number Mirror</h2>
+  <div class="eq" id="mirrorRev">Reverse = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="mirrorClicks">0</div><div class="lbl">Solved</div></div>
+    <div class="st"><div class="num" id="mirrorPals">0</div><div class="lbl">Palindromes</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 27. Perfect Square -->
+<section class="section s27" id="sec27">
+  <h1 id="psqNum" style="font-size:10vw">--</h1><h2>27 &middot; Perfect Square?</h2>
+  <div class="eq" id="psqAnswer">Is it a perfect square?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="psqYes">0</div><div class="lbl">Yes</div></div>
+    <div class="st"><div class="num" id="psqNo">0</div><div class="lbl">No</div></div>
+    <div class="st"><div class="num" id="psqTotal">0</div><div class="lbl">Total</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 28. Golden Ratio -->
+<section class="section s28" id="sec28">
+  <h1 id="phiVal" style="font-size:7vw">1</h1><h2>28 &middot; Golden Ratio</h2>
+  <div class="eq" id="phiEq">F(1)/F(0) = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="phiStep">0</div><div class="lbl">Step</div></div>
+    <div class="st"><div class="num" id="phiErr" style="font-size:20px">--</div><div class="lbl">Error</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 29. Geometric Series -->
+<section class="section s29" id="sec29">
+  <h1 id="geomSum" style="font-size:6vw">0</h1><h2>29 &middot; Geometric Series (1/2^n)</h2>
+  <div class="eq" id="geomEq">S(0) = 0</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="geomN">0</div><div class="lbl">Terms</div></div>
+    <div class="st"><div class="num" id="geomLast">--</div><div class="lbl">Last Term</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 30. Decimal to Hex -->
+<section class="section s30" id="sec30">
+  <h1 id="d2hDec" style="font-size:10vw">--</h1><h2>30 &middot; Decimal to Hex</h2>
+  <div class="eq" id="d2hHex" style="font-family:monospace;letter-spacing:2px">hex = ?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="d2hCount">0</div><div class="lbl">Solved</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 31. Running Average -->
+<section class="section s31" id="sec31">
+  <h1 id="ravgNum" style="font-size:12vw">--</h1><h2>31 &middot; Running Average</h2>
+  <div class="eq" id="ravgAvg" style="font-family:monospace">avg = --</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="ravgCount">0</div><div class="lbl">Values</div></div>
+    <div class="st"><div class="num" id="ravgSum">0</div><div class="lbl">Sum</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 32. Palindrome Check -->
+<section class="section s32" id="sec32">
+  <h1 id="palNum" style="font-size:10vw">--</h1><h2>32 &middot; Palindrome Check</h2>
+  <div class="eq" id="palResult">Is it a palindrome?</div>
+  <div class="stat-row">
+    <div class="st"><div class="num" id="palYes">0</div><div class="lbl">Yes</div></div>
+    <div class="st"><div class="num" id="palNo">0</div><div class="lbl">No</div></div>
+    <div class="st"><div class="num" id="palTotal">0</div><div class="lbl">Total</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- 33. Master Reset -->
+<section class="section s33" id="sec33">
+  <button class="btn" onclick="resetAll()">RESET ALL</button>
+  <div class="stat-row" style="margin-top:30px">
+    <div class="st"><div class="num" id="globalTimer">00:00</div><div class="lbl">Session Timer</div></div>
+    <div class="st"><div class="num" id="totalActions">0</div><div class="lbl">Total Actions</div></div>
+  </div>
+</section>
+
+<script>
+// GLOBAL
+let totalActions = 0;
+let globalSec = 0;
+const $totalActions = document.getElementById("totalActions");
+const $globalTimer = document.getElementById("globalTimer");
+
+setInterval(() => {
+  globalSec++;
+  const m = String(Math.floor(globalSec / 60)).padStart(2, "0");
+  const s = String(globalSec % 60).padStart(2, "0");
+  $globalTimer.textContent = m + ":" + s;
+}, 1000);
+
+function act() { totalActions++; $totalActions.textContent = totalActions; }
+
+const PI_DIGITS = "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442881097566593344612847564823378678316527120190914564856692346034861045432664821339360726024914127372458700660631558817488152092096282925409171536436789259036001133053054882046652138414695194151160943305727036575959195309218611738193261179310511854807446237996274956735188575272489122793818301194912983367336244065664308602139494639522473719070217986094370277053921717629317675238467481846766940513200056812714526356082778577134275778960917363717872146844090122495343014654958537105079227968925892354201995611212902196086403441815981362977477130996051870721134999999837297804995105973173281609631859502445945534690830264252230825334468503526193118817101000313783875288658753320838142061717766914730359825349042875546873115956286388235378";
+
+// NAV
+const totalSections = 33;
+const nav = document.getElementById("nav");
+for (let i = 1; i <= totalSections; i++) {
+  const a = document.createElement("a");
+  a.href = "#sec" + i;
+  a.dataset.idx = i;
+  nav.appendChild(a);
+}
+const navLinks = document.querySelectorAll("nav a");
+const sections = document.querySelectorAll(".section");
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = [...sections].indexOf(e.target) + 1;
+      navLinks.forEach(a => a.classList.remove("active"));
+      const target = document.querySelector('nav a[data-idx="'+idx+'"]');
+      if (target) target.classList.add("active");
+    }
+  });
+}, { threshold: 0.55 });
+sections.forEach(s => observer.observe(s));
+
+// PARTICLES
+function spark(x, y, txt) {
+  const p = document.createElement("div");
+  p.className = "particle";
+  p.textContent = txt;
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { if (p.parentNode) p.remove(); }, 1100);
+}
+
+// ==================== 01. PI CLICKER ====================
+let piIdx = 1, piClicks = 0;
+const $piRow = document.getElementById("piRow");
+const $piCount = document.getElementById("piCount");
+
+document.getElementById("piArea").addEventListener("click", function(e) {
+  if (piIdx < PI_DIGITS.length - 1) piIdx++;
+  const ch = PI_DIGITS[piIdx];
+  const s = document.createElement("span");
+  s.style.animation = "popIn .3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+  s.style.display = "inline-block";
+  s.style.color = `hsl(${(piIdx*27)%360},50%,${40+(piIdx%3)*10}%)`;
+  s.textContent = ch;
+  $piRow.appendChild(s);
+  piClicks++;
+  $piCount.textContent = piClicks;
+  act();
+  spark(e.clientX, e.clientY, ch);
+});
+
+// ==================== 02. POWERS OF 2 ====================
+let dblN = 1, dblVal = 2n, dblCnt = 0;
+const $dblVal = document.getElementById("dblVal");
+const $dblCount = document.getElementById("dblCount");
+const $dblEq = document.getElementById("dblEq");
+
+document.getElementById("dblBtn").addEventListener("click", function(e) {
+  e.stopPropagation();
+  dblVal *= 2n;
+  dblN++;
+  dblCnt++;
+  $dblVal.textContent = dblVal.toLocaleString("en-US");
+  $dblCount.textContent = dblCnt;
+  $dblEq.textContent = "2^" + dblN + " = " + dblVal.toLocaleString("en-US");
+  act();
+  const r = this.getBoundingClientRect();
+  for (let i = 0; i < 5; i++) setTimeout(() => spark(r.left+Math.random()*r.width, r.top+Math.random()*r.height, "x2"), i*30);
+});
+
+// ==================== 03. SQUARE NUMBERS ====================
+let sqN = 1, sqClicks = 0;
+const $sqVal = document.getElementById("sqVal");
+const $sqEq = document.getElementById("sqEq");
+const $sqN = document.getElementById("sqN");
+const $sqClicks = document.getElementById("sqClicks");
+
+document.getElementById("sec3").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  sqN++;
+  sqClicks++;
+  const val = sqN * sqN;
+  $sqVal.textContent = val.toLocaleString("en-US");
+  $sqEq.textContent = sqN + "\u00B2 = " + val.toLocaleString("en-US");
+  $sqN.textContent = sqN;
+  $sqClicks.textContent = sqClicks;
+  act();
+  spark(e.clientX, e.clientY, val+"");
+});
+
+// ==================== 04. TRIANGULAR NUMBERS ====================
+let triN = 1, triClicks = 0;
+const $triVal = document.getElementById("triVal");
+const $triEq = document.getElementById("triEq");
+const $triN = document.getElementById("triN");
+const $triClicks = document.getElementById("triClicks");
+
+document.getElementById("sec4").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  triN++;
+  triClicks++;
+  const val = triN * (triN + 1) / 2;
+  $triVal.textContent = val.toLocaleString("en-US");
+  $triEq.textContent = "T(" + triN + ") = " + val.toLocaleString("en-US");
+  $triN.textContent = triN;
+  $triClicks.textContent = triClicks;
+  act();
+  spark(e.clientX, e.clientY, val+"");
+});
+
+// ==================== 05. GCD ====================
+let gcdA = 0, gcdB = 0, gcdCount = 0, gcdStart = 0;
+const $gcdResult = document.getElementById("gcdResult");
+const $gcdPair = document.getElementById("gcdPair");
+const $gcdCount = document.getElementById("gcdCount");
+const $gcdTime = document.getElementById("gcdTime");
+
+function gcd(a, b) { while (b) { [a, b] = [b, a % b]; } return a; }
+function newGCD() {
+  gcdA = Math.floor(Math.random() * 900) + 10;
+  gcdB = Math.floor(Math.random() * 900) + 10;
+  $gcdPair.textContent = gcdA + "  and  " + gcdB;
+  $gcdResult.textContent = "gcd = ?";
+  $gcdResult.style.color = "";
+  gcdStart = performance.now();
+}
+newGCD();
+document.getElementById("sec5").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const elapsed = performance.now() - gcdStart;
+  const g = gcd(gcdA, gcdB);
+  $gcdResult.textContent = g;
+  $gcdResult.style.color = elapsed < 300 ? "#5f5" : elapsed < 1000 ? "#ff5" : "#f55";
+  $gcdTime.textContent = Math.round(elapsed) + "ms";
+  gcdCount++;
+  $gcdCount.textContent = gcdCount;
+  act();
+  spark(e.clientX, e.clientY, g+"");
+  setTimeout(newGCD, 300);
+});
+
+// ==================== 06. FIBONACCI ====================
+let fibA = 0n, fibB = 1n, fibStep = 0;
+const $fibNum = document.getElementById("fibNum");
+const $fibSeq = document.getElementById("fibSeq");
+const $fibStep = document.getElementById("fibStep");
+
+document.getElementById("sec6").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const next = fibA + fibB;
+  fibA = fibB; fibB = next; fibStep++;
+  $fibNum.textContent = fibB.toLocaleString("en-US");
+  $fibStep.textContent = fibStep;
+  $fibSeq.textContent = fibB + ", " + $fibSeq.textContent;
+  act();
+  spark(e.clientX, e.clientY, fibStep + "");
+});
+
+// ==================== 07. PRIME NUMBERS ====================
+let primesFound = [2], primeCheck = 3, primeIdx = 1;
+const $primeNum = document.getElementById("primeNum");
+const $primeIdx = document.getElementById("primeIdx");
+
+function isPrime(n) {
+  if (n < 2) return false;
+  if (n % 2 === 0) return n === 2;
+  for (let i = 3; i * i <= n; i += 2) if (n % i === 0) return false;
+  return true;
+}
+function nextPrime() {
+  while (true) { primeCheck += 2; if (isPrime(primeCheck)) { primesFound.push(primeCheck); primeIdx++; return primeCheck; } }
+}
+document.getElementById("sec7").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const p = nextPrime();
+  $primeNum.textContent = p.toLocaleString("en-US");
+  $primeIdx.textContent = primeIdx;
+  act();
+  spark(e.clientX, e.clientY, p+"");
+});
+
+// ==================== 08. RANDOM INTEGER ====================
+let randRolls = 0, randSum = 0, randMin = Infinity, randMax = -Infinity;
+const $randVal = document.getElementById("randVal");
+const $randRolls = document.getElementById("randRolls");
+const $randSum = document.getElementById("randSum");
+const $randAvg = document.getElementById("randAvg");
+const $randMin = document.getElementById("randMin");
+const $randMax = document.getElementById("randMax");
+
+document.getElementById("sec8").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const r = Math.floor(Math.random() * 100) + 1;
+  randRolls++; randSum += r;
+  if (r < randMin) randMin = r;
+  if (r > randMax) randMax = r;
+  $randVal.textContent = r;
+  $randRolls.textContent = randRolls;
+  $randSum.textContent = randSum;
+  $randAvg.textContent = (randSum / randRolls).toFixed(2);
+  $randMin.textContent = randMin;
+  $randMax.textContent = randMax;
+  act();
+  spark(e.clientX, e.clientY, r+"");
+});
+
+// ==================== 09. BINARY COUNTER ====================
+let binN = 0;
+const $binNumDec = document.getElementById("binNumDec");
+const $binNumBin = document.getElementById("binNumBin");
+
+document.getElementById("sec9").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  binN++;
+  $binNumDec.textContent = binN.toLocaleString("en-US");
+  $binNumBin.textContent = binN.toString(2);
+  act();
+  spark(e.clientX, e.clientY, binN % 2 === 0 ? "0" : "1");
+});
+
+// ==================== 10. FACTORIAL ====================
+let factN = 0, factCur = 1n;
+const $factNum = document.getElementById("factNum");
+const $factExpr = document.getElementById("factExpr");
+const $factN = document.getElementById("factN");
+
+document.getElementById("sec10").addEventListener("click", function(e) {
+  if (e.target.closest("button") || factN >= 50) return;
+  factN++;
+  factCur *= BigInt(factN);
+  $factN.textContent = factN;
+  $factExpr.textContent = factN + "! =";
+  $factNum.textContent = factCur.toLocaleString("en-US");
+  act();
+  spark(e.clientX, e.clientY, factN+"!");
+});
+
+// ==================== 11. MODULAR COUNTER ====================
+let modVal = 0, modClicks = 0, modCycles = 0;
+const $modVal = document.getElementById("modVal");
+const $modEq = document.getElementById("modEq");
+const $modClicks = document.getElementById("modClicks");
+const $modCycles = document.getElementById("modCycles");
+
+document.getElementById("sec11").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  modVal = (modVal + 1) % 7;
+  modClicks++;
+  if (modVal === 0) modCycles++;
+  $modVal.textContent = modVal;
+  $modEq.textContent = modClicks + " mod 7 = " + modVal;
+  $modClicks.textContent = modClicks;
+  $modCycles.textContent = modCycles;
+  act();
+  spark(e.clientX, e.clientY, modVal+"");
+});
+
+// ==================== 12. DIGIT SUM ====================
+let dsClicks = 0, dsTotalSum = 0, dsCurrent = 0;
+const $dsNum = document.getElementById("dsNum");
+const $dsSum = document.getElementById("dsSum");
+const $dsClicks = document.getElementById("dsClicks");
+const $dsTotalSum = document.getElementById("dsTotalSum");
+
+function newDigitSum() {
+  dsCurrent = Math.floor(Math.random() * 90000) + 1000;
+  $dsNum.textContent = dsCurrent.toLocaleString("en-US");
+  $dsSum.textContent = "Sum of digits = ?";
+  $dsNum.style.color = "";
+}
+newDigitSum();
+document.getElementById("sec12").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const digits = String(dsCurrent).split("").map(Number);
+  const sum = digits.reduce((a, b) => a + b, 0);
+  dsTotalSum += sum;
+  dsClicks++;
+  $dsSum.textContent = digits.join("+") + " = " + sum;
+  $dsNum.style.color = "#5f5";
+  $dsClicks.textContent = dsClicks;
+  $dsTotalSum.textContent = dsTotalSum;
+  act();
+  spark(e.clientX, e.clientY, sum+"");
+  setTimeout(newDigitSum, 400);
+});
+
+// ==================== 13. CUBIC NUMBERS ====================
+let cubeN = 1, cubeClicks = 0;
+const $cubeVal = document.getElementById("cubeVal");
+const $cubeEq = document.getElementById("cubeEq");
+const $cubeN = document.getElementById("cubeN");
+const $cubeClicks = document.getElementById("cubeClicks");
+
+document.getElementById("sec13").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  cubeN++;
+  cubeClicks++;
+  const val = cubeN * cubeN * cubeN;
+  $cubeVal.textContent = val.toLocaleString("en-US");
+  $cubeEq.textContent = cubeN + "\u00B3 = " + val.toLocaleString("en-US");
+  $cubeN.textContent = cubeN;
+  $cubeClicks.textContent = cubeClicks;
+  act();
+  spark(e.clientX, e.clientY, val+"");
+});
+
+// ==================== 14. COLLATZ ====================
+let colStart = 0, colCur = 0, colSteps = 0, colBest = Infinity;
+const $colVal = document.getElementById("colVal");
+const $colStep = document.getElementById("colStep");
+const $colSteps = document.getElementById("colSteps");
+const $colStart = document.getElementById("colStart");
+const $colBest = document.getElementById("colBest");
+
+function newCollatz() {
+  colStart = Math.floor(Math.random() * 900) + 10;
+  colCur = colStart;
+  colSteps = 0;
+  $colVal.textContent = colCur;
+  $colStep.textContent = "Start: " + colCur;
+  $colStart.textContent = colCur;
+  $colSteps.textContent = "0";
+}
+newCollatz();
+document.getElementById("sec14").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  if (colCur === 1) {
+    if (colSteps < colBest) { colBest = colSteps; $colBest.textContent = colBest; }
+    newCollatz();
+    return;
+  }
+  const prev = colCur;
+  colCur = colCur % 2 === 0 ? colCur / 2 : colCur * 3 + 1;
+  colSteps++;
+  $colVal.textContent = colCur;
+  $colStep.textContent = prev % 2 === 0 ? prev + " / 2 = " + colCur : prev + " x 3 + 1 = " + colCur;
+  $colSteps.textContent = colSteps;
+  act();
+  spark(e.clientX, e.clientY, colCur+"");
+});
+
+// ==================== 15. HARMONIC SERIES ====================
+let harmN = 0, harmSum = 0;
+const $harmSum = document.getElementById("harmSum");
+const $harmN = document.getElementById("harmN");
+const $harmEq = document.getElementById("harmEq");
+const $harmLast = document.getElementById("harmLast");
+
+document.getElementById("sec15").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  harmN++;
+  const term = 1 / harmN;
+  harmSum += term;
+  $harmSum.textContent = harmSum.toFixed(6);
+  $harmN.textContent = harmN;
+  $harmEq.textContent = "H(" + harmN + ") = " + harmSum.toFixed(6);
+  $harmLast.textContent = "1/" + harmN + " = " + term.toFixed(6);
+  act();
+  spark(e.clientX, e.clientY, "1/" + harmN);
+});
+
+// ==================== 16. PASCAL'S TRIANGLE ====================
+let pascalRow = 0, pascalVals = [1n];
+const $pascalRow = document.getElementById("pascalRow");
+const $pascalN = document.getElementById("pascalN");
+const $pascalRowNum = document.getElementById("pascalRowNum");
+const $pascalSum = document.getElementById("pascalSum");
+
+document.getElementById("sec16").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  pascalRow++;
+  const prev = pascalVals;
+  const next = [1n];
+  for (let i = 1; i < prev.length; i++) next.push(prev[i - 1] + prev[i]);
+  next.push(1n);
+  pascalVals = next;
+  const rowSum = pascalVals.reduce((a, b) => a + b, 0n);
+  $pascalRow.textContent = pascalVals.map(v => v.toLocaleString("en-US")).join("  ");
+  $pascalN.textContent = "Row " + pascalRow;
+  $pascalRowNum.textContent = pascalRow;
+  $pascalSum.textContent = rowSum.toLocaleString("en-US");
+  act();
+  spark(e.clientX, e.clientY, "C(" + pascalRow + ")");
+});
+
+// ==================== 17. PENTAGONAL NUMBERS ====================
+let pentN = 1, pentClicks = 0;
+const $pentVal = document.getElementById("pentVal");
+const $pentEq = document.getElementById("pentEq");
+const $pentN = document.getElementById("pentN");
+const $pentClicks = document.getElementById("pentClicks");
+
+document.getElementById("sec17").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  pentN++;
+  pentClicks++;
+  const val = pentN * (3 * pentN - 1) / 2;
+  $pentVal.textContent = val.toLocaleString("en-US");
+  $pentEq.textContent = "P(" + pentN + ") = " + pentN + "(3*" + pentN + "-1)/2 = " + val.toLocaleString("en-US");
+  $pentN.textContent = pentN;
+  $pentClicks.textContent = pentClicks;
+  act();
+  spark(e.clientX, e.clientY, val+"");
+});
+
+// ==================== 18. INTEGER SQRT ====================
+let isqrtN = 0, isqrtCount = 0, isqrtScore = 0, isqrtStart = 0;
+const $isqrtResult = document.getElementById("isqrtResult");
+const $isqrtEq = document.getElementById("isqrtEq");
+const $isqrtCount = document.getElementById("isqrtCount");
+const $isqrtScore = document.getElementById("isqrtScore");
+
+function newISqrt() {
+  isqrtN = Math.floor(Math.random() * 9000) + 100;
+  $isqrtEq.textContent = "isqrt(" + isqrtN.toLocaleString("en-US") + ") = ?";
+  $isqrtResult.textContent = "?";
+  $isqrtResult.style.color = "";
+  isqrtStart = performance.now();
+}
+newISqrt();
+document.getElementById("sec18").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const elapsed = performance.now() - isqrtStart;
+  const r = Math.floor(Math.sqrt(isqrtN));
+  $isqrtResult.textContent = r;
+  $isqrtResult.style.color = elapsed < 500 ? "#5f5" : elapsed < 2000 ? "#ff5" : "#f55";
+  $isqrtEq.textContent = "isqrt(" + isqrtN.toLocaleString("en-US") + ") = " + r;
+  isqrtCount++;
+  const bonus = elapsed < 500 ? 10 : elapsed < 1000 ? 5 : elapsed < 2000 ? 2 : 1;
+  isqrtScore += bonus;
+  $isqrtCount.textContent = isqrtCount;
+  $isqrtScore.textContent = isqrtScore;
+  act();
+  spark(e.clientX, e.clientY, r+"");
+  setTimeout(newISqrt, 400);
+});
+
+// ==================== 19. LCM ====================
+let lcmA = 0, lcmB = 0, lcmCount = 0, lcmStart = 0;
+const $lcmResult = document.getElementById("lcmResult");
+const $lcmPair = document.getElementById("lcmPair");
+const $lcmCount = document.getElementById("lcmCount");
+const $lcmTime = document.getElementById("lcmTime");
+
+function lcm(a, b) { return (a * b) / gcd(a, b); }
+function newLCM() {
+  lcmA = Math.floor(Math.random() * 90) + 2;
+  lcmB = Math.floor(Math.random() * 90) + 2;
+  $lcmPair.textContent = lcmA + "  and  " + lcmB;
+  $lcmResult.textContent = "lcm = ?";
+  $lcmResult.style.color = "";
+  lcmStart = performance.now();
+}
+newLCM();
+document.getElementById("sec19").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const elapsed = performance.now() - lcmStart;
+  const val = lcm(lcmA, lcmB);
+  $lcmResult.textContent = val;
+  $lcmResult.style.color = elapsed < 500 ? "#5f5" : elapsed < 1500 ? "#ff5" : "#f55";
+  $lcmTime.textContent = Math.round(elapsed) + "ms";
+  lcmCount++;
+  $lcmCount.textContent = lcmCount;
+  act();
+  spark(e.clientX, e.clientY, val+"");
+  setTimeout(newLCM, 300);
+});
+
+// ==================== 20. REACTION TIME ====================
+let reactState = "idle", reactStart = 0, reactTimes = [], reactBest = Infinity, reactCount = 0;
+const $reactResult = document.getElementById("reactResult");
+const $reactBtn = document.getElementById("reactBtn");
+const $reactBest = document.getElementById("reactBest");
+const $reactAvg = document.getElementById("reactAvg");
+const $reactCount = document.getElementById("reactCount");
+
+$reactBtn.addEventListener("click", function(e) {
+  e.stopPropagation();
+  if (reactState === "idle") {
+    reactState = "waiting";
+    $reactResult.textContent = "WAIT...";
+    $reactBtn.textContent = "WAIT...";
+    $reactBtn.style.borderColor = "#f55";
+    const delay = 800 + Math.random() * 2500;
+    setTimeout(() => {
+      if (reactState !== "waiting") return;
+      reactState = "ready";
+      reactStart = performance.now();
+      $reactResult.textContent = "CLICK NOW!";
+      $reactBtn.textContent = "CLICK!";
+      $reactBtn.style.borderColor = "#5f5";
+      $reactBtn.style.background = "rgba(0,255,0,.15)";
+    }, delay);
+  } else if (reactState === "waiting") {
+    reactState = "idle";
+    $reactResult.textContent = "TOO SOON!";
+    $reactBtn.textContent = "RETRY";
+    $reactBtn.style.borderColor = "#555";
+    $reactBtn.style.background = "";
+    setTimeout(() => { $reactBtn.textContent = "START"; $reactResult.textContent = "READY"; }, 1000);
+  } else if (reactState === "ready") {
+    const t = Math.round(performance.now() - reactStart);
+    reactTimes.push(t); reactCount++;
+    if (t < reactBest) reactBest = t;
+    const avg = Math.round(reactTimes.reduce((a,b)=>a+b,0) / reactTimes.length);
+    $reactResult.textContent = t + " ms";
+    $reactBest.textContent = reactBest === Infinity ? "--" : reactBest + "ms";
+    $reactAvg.textContent = avg + "ms";
+    $reactCount.textContent = reactCount;
+    $reactBtn.textContent = "RETRY";
+    $reactBtn.style.borderColor = "#555";
+    $reactBtn.style.background = "";
+    reactState = "idle";
+    act();
+    spark(e.clientX, e.clientY, t+"ms");
+  }
+});
+
+// ==================== 21. CPS SPEED TEST ====================
+let cpsClicks = 0, cpsRunning = false, cpsTime = 5, cpsInterval = null, cpsBestScore = 0;
+const $cpsScore = document.getElementById("cpsScore");
+const $cpsResult = document.getElementById("cpsResult");
+const $cpsTime = document.getElementById("cpsTime");
+const $cpsBtn = document.getElementById("cpsBtn");
+const $cpsBest = document.getElementById("cpsBest");
+
+$cpsBtn.addEventListener("click", function(e) {
+  e.stopPropagation();
+  if (!cpsRunning) {
+    cpsRunning = true; cpsClicks = 0; cpsTime = 5;
+    $cpsScore.textContent = "0"; $cpsResult.textContent = "--";
+    $cpsBtn.textContent = "CLICK FAST!";
+    $cpsBtn.style.borderColor = "#5f5";
+    cpsInterval = setInterval(() => {
+      cpsTime -= 0.1;
+      $cpsTime.textContent = cpsTime.toFixed(1);
+      if (cpsTime <= 0) {
+        clearInterval(cpsInterval);
+        cpsRunning = false;
+        const cps = Math.round(cpsClicks / 5 * 10) / 10;
+        $cpsResult.textContent = cps;
+        if (cps > cpsBestScore) { cpsBestScore = cps; $cpsBest.textContent = cpsBestScore; }
+        $cpsBtn.textContent = "RESTART";
+        $cpsBtn.style.borderColor = "#555";
+        $cpsTime.textContent = "0.0";
+      }
+    }, 100);
+  } else {
+    cpsClicks++;
+    $cpsScore.textContent = cpsClicks;
+    act();
+    spark(e.clientX, e.clientY, cpsClicks);
+  }
+});
+
+// ==================== 22. AIM TRAINER ====================
+let aimScore = 0, aimHits = 0, aimMiss = 0, aimStreak = 0, aimBestScore = 0;
+let aimRunning = false, aimTimer = 30, aimInterval = null;
+const $aimScore = document.getElementById("aimScore");
+const $aimTimer = document.getElementById("aimTimer");
+const $aimArena = document.getElementById("aimArena");
+const $aimHits = document.getElementById("aimHits");
+const $aimMiss = document.getElementById("aimMiss");
+const $aimAcc = document.getElementById("aimAcc");
+const $aimStreak = document.getElementById("aimStreak");
+const $aimBest = document.getElementById("aimBest");
+const $aimTrail = document.getElementById("aimTrail");
+
+function startAimRound() {
+  aimScore = 0; aimHits = 0; aimMiss = 0; aimStreak = 0; aimTimer = 30;
+  $aimScore.textContent = "0"; $aimHits.textContent = "0"; $aimMiss.textContent = "0";
+  $aimAcc.textContent = "--%"; $aimStreak.textContent = "0"; $aimTimer.textContent = "30.0";
+  $aimTrail.innerHTML = "";
+  aimRunning = true;
+  spawnAimTarget();
+  aimInterval = setInterval(() => {
+    aimTimer -= 0.1;
+    $aimTimer.textContent = aimTimer.toFixed(1);
+    if (aimTimer <= 0) {
+      clearInterval(aimInterval);
+      aimRunning = false;
+      $aimTimer.textContent = "0.0";
+      $aimScore.textContent = aimScore + " DONE";
+      if (aimScore > aimBestScore) { aimBestScore = aimScore; $aimBest.textContent = aimBestScore; }
+      const old = $aimArena.querySelector(".aim-target");
+      if (old) old.remove();
+    }
+  }, 100);
+}
+
+function spawnAimTarget() {
+  if (!aimRunning) return;
+  const old = $aimArena.querySelector(".aim-target");
+  if (old) old.remove();
+  const t = document.createElement("div");
+  t.className = "aim-target";
+  const size = 24 + Math.random() * 56;
+  const maxX = $aimArena.clientWidth - size;
+  const maxY = $aimArena.clientHeight - size;
+  t.style.width = size + "px"; t.style.height = size + "px";
+  t.style.left = Math.random() * maxX + "px";
+  t.style.top = Math.random() * maxY + "px";
+  t.style.background = "#fff";
+  t.style.border = "2px solid #000";
+  t.style.boxShadow = "0 0 0 1px #fff, 0 0 20px rgba(255,255,255,.15)";
+  t.style.color = "#000";
+  const pts = Math.floor(100 - size);
+  t.textContent = "+" + pts;
+  t.addEventListener("click", function(ev) {
+    ev.stopPropagation();
+    if (!aimRunning) return;
+    aimScore += pts; aimHits++; aimStreak++;
+    $aimScore.textContent = aimScore; $aimHits.textContent = aimHits;
+    $aimStreak.textContent = aimStreak;
+    updateAimAcc(); act();
+    spark(ev.clientX, ev.clientY, "+" + pts);
+    const tag = document.createElement("span");
+    tag.style.cssText = "font-size:12px;padding:1px 5px;border:1px solid #888;border-radius:6px;font-family:monospace";
+    tag.textContent = "+" + pts;
+    $aimTrail.insertBefore(tag, $aimTrail.firstChild);
+    if ($aimTrail.children.length > 12) $aimTrail.lastChild.remove();
+    t.remove();
+    spawnAimTarget();
+  });
+  $aimArena.appendChild(t);
+}
+$aimArena.addEventListener("click", function(e) {
+  if (!aimRunning) { startAimRound(); return; }
+  if (e.target === $aimArena) { aimMiss++; aimStreak = 0; $aimMiss.textContent = aimMiss; $aimStreak.textContent = "0"; updateAimAcc(); act(); }
+});
+function updateAimAcc() {
+  const total = aimHits + aimMiss;
+  $aimAcc.textContent = total > 0 ? Math.round(aimHits / total * 100) + "%" : "--%";
+}
+startAimRound();
+
+// ==================== 23. 10-SECOND SPRINT ====================
+let sprintClicks = 0, sprintRunning = false, sprintTimer = 10, sprintInterval = null;
+let sprintBest = 0, sprintRounds = 0;
+const $sprintScore = document.getElementById("sprintScore");
+const $sprintBtn = document.getElementById("sprintBtn");
+const $sprintTimer = document.getElementById("sprintTimer");
+const $sprintCPS = document.getElementById("sprintCPS");
+const $sprintBest = document.getElementById("sprintBest");
+const $sprintRounds = document.getElementById("sprintRounds");
+
+$sprintBtn.addEventListener("click", function(e) {
+  e.stopPropagation();
+  if (!sprintRunning) {
+    sprintRunning = true; sprintClicks = 0; sprintTimer = 10;
+    $sprintScore.textContent = "0"; $sprintCPS.textContent = "--";
+    $sprintTimer.textContent = "10.0";
+    $sprintBtn.textContent = "CLICK FAST!";
+    $sprintBtn.style.borderColor = "#5f5";
+    sprintInterval = setInterval(() => {
+      sprintTimer -= 0.1;
+      $sprintTimer.textContent = sprintTimer.toFixed(1);
+      if (sprintTimer <= 0) {
+        clearInterval(sprintInterval); sprintRunning = false;
+        const cps = Math.round(sprintClicks / 10 * 10) / 10;
+        $sprintCPS.textContent = cps; sprintRounds++;
+        if (cps > sprintBest) { sprintBest = cps; $sprintBest.textContent = sprintBest; }
+        $sprintRounds.textContent = sprintRounds;
+        $sprintBtn.textContent = "RESTART"; $sprintBtn.style.borderColor = "#555";
+        $sprintTimer.textContent = "0.0";
+      }
+    }, 100);
+  } else {
+    sprintClicks++; $sprintScore.textContent = sprintClicks;
+    act(); spark(e.clientX, e.clientY, sprintClicks);
+  }
+});
+
+// ==================== 24. SUM OF SQUARES ====================
+let sosN = 1, sosClicks = 0;
+const $sosVal = document.getElementById("sosVal");
+const $sosEq = document.getElementById("sosEq");
+const $sosN = document.getElementById("sosN");
+const $sosClicks = document.getElementById("sosClicks");
+
+document.getElementById("sec24").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  sosN++; sosClicks++;
+  const sum = sosN * (sosN + 1) * (2 * sosN + 1) / 6;
+  $sosVal.textContent = sum.toLocaleString("en-US");
+  $sosEq.textContent = "1\u00B2+...+" + sosN + "\u00B2 = " + sum.toLocaleString("en-US");
+  $sosN.textContent = sosN; $sosClicks.textContent = sosClicks;
+  act(); spark(e.clientX, e.clientY, sum+"");
+});
+
+// ==================== 25. TAP TEMPO BPM ====================
+let bpmTimes = [], bpmCount = 0;
+const $bpmVal = document.getElementById("bpmVal");
+const $bpmCount = document.getElementById("bpmCount");
+const $bpmAvg = document.getElementById("bpmAvg");
+
+document.getElementById("sec25").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const now = performance.now();
+  bpmTimes.push(now);
+  while (bpmTimes.length > 1 && now - bpmTimes[0] > 5000) bpmTimes.shift();
+  bpmCount++;
+  $bpmCount.textContent = bpmCount;
+  if (bpmTimes.length >= 2) {
+    const intervals = [];
+    for (let i = 1; i < bpmTimes.length; i++) intervals.push(bpmTimes[i] - bpmTimes[i-1]);
+    const avgMs = intervals.reduce((a,b)=>a+b,0) / intervals.length;
+    const bpm = Math.round(60000 / avgMs);
+    $bpmVal.textContent = bpm;
+    if (bpmTimes.length >= 4) $bpmAvg.textContent = bpm + " BPM";
+  }
+  act(); spark(e.clientX, e.clientY, bpmCount+"");
+});
+
+// ==================== 26. NUMBER MIRROR ====================
+let mirrorClicks = 0, mirrorPals = 0, mirrorCur = 0;
+const $mirrorNum = document.getElementById("mirrorNum");
+const $mirrorRev = document.getElementById("mirrorRev");
+const $mirrorClicks = document.getElementById("mirrorClicks");
+const $mirrorPals = document.getElementById("mirrorPals");
+
+function newMirror() {
+  mirrorCur = Math.floor(Math.random() * 90000) + 100;
+  $mirrorNum.textContent = mirrorCur.toLocaleString("en-US");
+  $mirrorRev.textContent = "Reverse = ?";
+  $mirrorNum.style.color = "";
+}
+newMirror();
+document.getElementById("sec26").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const rev = parseInt(String(mirrorCur).split("").reverse().join(""));
+  mirrorClicks++;
+  if (mirrorCur === rev) mirrorPals++;
+  $mirrorRev.textContent = "Reverse = " + rev;
+  $mirrorNum.style.color = "#5f5";
+  $mirrorClicks.textContent = mirrorClicks; $mirrorPals.textContent = mirrorPals;
+  act(); spark(e.clientX, e.clientY, rev+"");
+  setTimeout(newMirror, 400);
+});
+
+// ==================== 27. PERFECT SQUARE ====================
+let psqYes = 0, psqNo = 0, psqTotal = 0, psqCur = 0;
+const $psqNum = document.getElementById("psqNum");
+const $psqAnswer = document.getElementById("psqAnswer");
+const $psqYes = document.getElementById("psqYes");
+const $psqNo = document.getElementById("psqNo");
+const $psqTotal = document.getElementById("psqTotal");
+
+function newPSq() {
+  psqCur = Math.floor(Math.random() * 9000) + 10;
+  $psqNum.textContent = psqCur.toLocaleString("en-US");
+  $psqAnswer.textContent = "Is it a perfect square?";
+  $psqNum.style.color = "";
+}
+newPSq();
+document.getElementById("sec27").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const r = Math.floor(Math.sqrt(psqCur));
+  const isPSq = r * r === psqCur;
+  psqTotal++;
+  if (isPSq) { psqYes++; $psqAnswer.textContent = "YES  sqrt=" + r; $psqNum.style.color = "#5f5"; }
+  else { psqNo++; $psqAnswer.textContent = "NO  sqrt\u2248" + Math.sqrt(psqCur).toFixed(2); $psqNum.style.color = "#f55"; }
+  $psqYes.textContent = psqYes; $psqNo.textContent = psqNo; $psqTotal.textContent = psqTotal;
+  act(); spark(e.clientX, e.clientY, isPSq ? "YES" : "NO");
+  setTimeout(newPSq, 500);
+});
+
+// ==================== 28. GOLDEN RATIO ====================
+let phiA = 1n, phiB = 1n, phiStep = 0;
+const $phiVal = document.getElementById("phiVal");
+const $phiEq = document.getElementById("phiEq");
+const $phiStep = document.getElementById("phiStep");
+const $phiErr = document.getElementById("phiErr");
+const PHI = 1.618033988749895;
+
+document.getElementById("sec28").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const next = phiA + phiB;
+  phiA = phiB; phiB = next; phiStep++;
+  const ratio = Number(phiB) / Number(phiA);
+  const err = Math.abs(ratio - PHI);
+  $phiVal.textContent = ratio.toFixed(9);
+  $phiEq.textContent = "F(" + (phiStep+1) + ")/F(" + phiStep + ") = " + ratio.toFixed(9);
+  $phiStep.textContent = phiStep;
+  $phiErr.textContent = err < 1e-9 ? "0" : err.toExponential(2);
+  act(); spark(e.clientX, e.clientY, ratio.toFixed(4)+"");
+});
+
+// ==================== 29. GEOMETRIC SERIES ====================
+let geomN = 0, geomSum = 0;
+const $geomSum = document.getElementById("geomSum");
+const $geomEq = document.getElementById("geomEq");
+const $geomN = document.getElementById("geomN");
+const $geomLast = document.getElementById("geomLast");
+
+document.getElementById("sec29").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  geomN++;
+  const term = 1 / Math.pow(2, geomN);
+  geomSum += term;
+  $geomSum.textContent = geomSum < 0.999999 ? geomSum.toFixed(8) : "~1.0";
+  $geomEq.textContent = geomN + " terms: sum = " + (geomSum < 0.999999 ? geomSum.toFixed(8) : "~1.0");
+  $geomN.textContent = geomN;
+  $geomLast.textContent = "1/2^" + geomN + " = " + term.toFixed(8);
+  act(); spark(e.clientX, e.clientY, "1/2^"+geomN);
+});
+
+// ==================== 30. DECIMAL TO HEX ====================
+let d2hCount = 0, d2hCur = 0;
+const $d2hDec = document.getElementById("d2hDec");
+const $d2hHex = document.getElementById("d2hHex");
+const $d2hCount = document.getElementById("d2hCount");
+
+function newD2H() {
+  d2hCur = Math.floor(Math.random() * 4000) + 16;
+  $d2hDec.textContent = d2hCur;
+  $d2hHex.textContent = "hex = ?";
+  $d2hDec.style.color = "";
+}
+newD2H();
+document.getElementById("sec30").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const hex = d2hCur.toString(16).toUpperCase();
+  d2hCount++;
+  $d2hHex.textContent = "0x" + hex;
+  $d2hDec.style.color = "#5f5";
+  $d2hCount.textContent = d2hCount;
+  act(); spark(e.clientX, e.clientY, "0x"+hex);
+  setTimeout(newD2H, 400);
+});
+
+// ==================== 31. RUNNING AVERAGE ====================
+let ravgCount = 0, ravgSum = 0;
+const $ravgNum = document.getElementById("ravgNum");
+const $ravgAvg = document.getElementById("ravgAvg");
+const $ravgCount = document.getElementById("ravgCount");
+const $ravgSum = document.getElementById("ravgSum");
+
+document.getElementById("sec31").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const v = Math.floor(Math.random() * 200) - 100;
+  ravgCount++; ravgSum += v;
+  const avg = ravgSum / ravgCount;
+  $ravgNum.textContent = v >= 0 ? "+" + v : v;
+  $ravgAvg.textContent = "avg = " + avg.toFixed(2);
+  $ravgCount.textContent = ravgCount; $ravgSum.textContent = ravgSum;
+  act(); spark(e.clientX, e.clientY, v+"");
+});
+
+// ==================== 32. PALINDROME CHECK ====================
+let palYes = 0, palNo = 0, palTotal = 0, palCur = 0;
+const $palNum = document.getElementById("palNum");
+const $palResult = document.getElementById("palResult");
+const $palYes = document.getElementById("palYes");
+const $palNo = document.getElementById("palNo");
+const $palTotal = document.getElementById("palTotal");
+
+function newPal() {
+  palCur = Math.floor(Math.random() * 90000) + 100;
+  $palNum.textContent = palCur.toLocaleString("en-US");
+  $palResult.textContent = "Is it a palindrome?";
+  $palNum.style.color = "";
+}
+newPal();
+document.getElementById("sec32").addEventListener("click", function(e) {
+  if (e.target.closest("button")) return;
+  const s = String(palCur);
+  const isPal = s === s.split("").reverse().join("");
+  palTotal++;
+  if (isPal) { palYes++; $palResult.textContent = "YES  palindrome"; $palNum.style.color = "#5f5"; }
+  else { palNo++; $palResult.textContent = "NO"; $palNum.style.color = "#f55"; }
+  $palYes.textContent = palYes; $palNo.textContent = palNo; $palTotal.textContent = palTotal;
+  act(); spark(e.clientX, e.clientY, isPal ? "YES" : "NO");
+  setTimeout(newPal, 400);
+});
+
+// ==================== RESET ALL ====================
+function resetAll() {
+  piIdx=1;piClicks=0;$piRow.innerHTML="3.";$piCount.textContent="0";
+  dblN=1;dblVal=2n;dblCnt=0;$dblVal.textContent="2";$dblCount.textContent="0";$dblEq.textContent="2^1 = 2";
+  sqN=1;sqClicks=0;$sqVal.textContent="1";$sqEq.textContent="1\u00B2 = 1";$sqN.textContent="1";$sqClicks.textContent="0";
+  triN=1;triClicks=0;$triVal.textContent="1";$triEq.textContent="T(1) = 1";$triN.textContent="1";$triClicks.textContent="0";
+  gcdCount=0;$gcdCount.textContent="0";$gcdTime.textContent="--";newGCD();
+  fibA=0n;fibB=1n;fibStep=0;$fibNum.textContent="0";$fibSeq.textContent="0";$fibStep.textContent="0";
+  primesFound=[2];primeCheck=3;primeIdx=1;$primeNum.textContent="2";$primeIdx.textContent="1";
+  randRolls=0;randSum=0;randMin=Infinity;randMax=-Infinity;$randVal.textContent="--";$randRolls.textContent="0";$randSum.textContent="0";$randAvg.textContent="--";$randMin.textContent="--";$randMax.textContent="--";
+  binN=0;$binNumDec.textContent="0";$binNumBin.textContent="0";
+  factN=0;factCur=1n;$factNum.textContent="1";$factExpr.textContent="0! = 1";$factN.textContent="0";
+  modVal=0;modClicks=0;modCycles=0;$modVal.textContent="0";$modEq.textContent="0 mod 7 = 0";$modClicks.textContent="0";$modCycles.textContent="0";
+  dsClicks=0;dsTotalSum=0;$dsClicks.textContent="0";$dsTotalSum.textContent="0";newDigitSum();
+  cubeN=1;cubeClicks=0;$cubeVal.textContent="1";$cubeEq.textContent="1\u00B3 = 1";$cubeN.textContent="1";$cubeClicks.textContent="0";
+  colBest=Infinity;$colBest.textContent="--";newCollatz();
+  harmN=0;harmSum=0;$harmSum.textContent="0";$harmN.textContent="0";$harmEq.textContent="H(0) = 0";$harmLast.textContent="--";
+  pascalRow=0;pascalVals=[1n];$pascalRow.textContent="1";$pascalN.textContent="Row 0";$pascalRowNum.textContent="0";$pascalSum.textContent="1";
+  pentN=1;pentClicks=0;$pentVal.textContent="1";$pentEq.textContent="P(1) = 1";$pentN.textContent="1";$pentClicks.textContent="0";
+  isqrtCount=0;isqrtScore=0;$isqrtCount.textContent="0";$isqrtScore.textContent="0";newISqrt();
+  lcmCount=0;$lcmCount.textContent="0";$lcmTime.textContent="--";newLCM();
+  reactState="idle";reactTimes=[];reactBest=Infinity;reactCount=0;$reactResult.textContent="READY";$reactBtn.textContent="START";$reactBtn.style.borderColor="#555";$reactBtn.style.background="";$reactBest.textContent="--";$reactAvg.textContent="--";$reactCount.textContent="0";
+  cpsClicks=0;cpsRunning=false;cpsTime=5;clearInterval(cpsInterval);cpsBestScore=0;$cpsScore.textContent="0";$cpsResult.textContent="--";$cpsTime.textContent="5.0";$cpsBtn.textContent="CLICK TO START";$cpsBtn.style.borderColor="#555";$cpsBest.textContent="--";
+  aimScore=0;aimHits=0;aimMiss=0;aimStreak=0;aimBestScore=0;aimRunning=false;aimTimer=30;clearInterval(aimInterval);$aimScore.textContent="0";$aimTimer.textContent="30.0";$aimHits.textContent="0";$aimMiss.textContent="0";$aimAcc.textContent="--%";$aimStreak.textContent="0";$aimBest.textContent="0";$aimTrail.innerHTML="";startAimRound();
+  sprintClicks=0;sprintRunning=false;sprintTimer=10;clearInterval(sprintInterval);sprintBest=0;sprintRounds=0;$sprintScore.textContent="0";$sprintBtn.textContent="CLICK TO START";$sprintBtn.style.borderColor="#555";$sprintTimer.textContent="10.0";$sprintCPS.textContent="--";$sprintBest.textContent="--";$sprintRounds.textContent="0";
+  sosN=1;sosClicks=0;$sosVal.textContent="1";$sosEq.textContent="1\u00B2 = 1";$sosN.textContent="1";$sosClicks.textContent="0";
+  bpmTimes=[];bpmCount=0;$bpmVal.textContent="--";$bpmCount.textContent="0";$bpmAvg.textContent="--";
+  mirrorClicks=0;mirrorPals=0;$mirrorClicks.textContent="0";$mirrorPals.textContent="0";newMirror();
+  psqYes=0;psqNo=0;psqTotal=0;$psqYes.textContent="0";$psqNo.textContent="0";$psqTotal.textContent="0";newPSq();
+  phiA=1n;phiB=1n;phiStep=0;$phiVal.textContent="1";$phiEq.textContent="F(1)/F(0) = ?";$phiStep.textContent="0";$phiErr.textContent="--";
+  geomN=0;geomSum=0;$geomSum.textContent="0";$geomEq.textContent="S(0) = 0";$geomN.textContent="0";$geomLast.textContent="--";
+  d2hCount=0;$d2hCount.textContent="0";newD2H();
+  ravgCount=0;ravgSum=0;$ravgNum.textContent="--";$ravgAvg.textContent="avg = --";$ravgCount.textContent="0";$ravgSum.textContent="0";
+  palYes=0;palNo=0;palTotal=0;$palYes.textContent="0";$palNo.textContent="0";$palTotal.textContent="0";newPal();
+  totalActions=0;globalSec=0;$totalActions.textContent="0";$globalTimer.textContent="00:00";
+}
+
+// Keyboard shortcut
+document.addEventListener("keydown", function(e) {
+  if (e.key === " ") { e.preventDefault(); const cur = document.querySelector(".section:target") || sections[0]; cur.click(); }
+});
+</script>
+</body>
+</html>
