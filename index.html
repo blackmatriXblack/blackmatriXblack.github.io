@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathPhys WebOS - Minimal Edition</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="splash">
+<div class="splash-content">
+<pre class="logo">
+
+  __  __       _   _       ____  _           _   __        ___   ____
+ |  \/  | __ _| |_| |__   |  _ \| |__  _   _| |_ \ \      / / \ / ___|
+ | |\/| |/ _` | __| '_ \  | |_) | '_ \| | | | __| \ \ /\ / / _ \\___ \
+ | |  | | (_| | |_| | | | |  __/| |_) | |_| | |_   \ V  V / ___ \___) |
+ |_|  |_|\__,_|\__|_| |_| |_|   |_.__/ \__,_|\__|   \_/\_/_/   \_\____/
+
+</pre>
+<div class="loader-bar"><div class="loader-fill"></div></div>
+<p class="status-text">Initializing MathPhys WebOS ...</p>
+<p class="version-info">Minimal Edition | 200,000+ formulas</p>
+</div>
+</div>
+<div id="terminal" style="display:none;">
+<div id="term-header">
+<span id="term-title">MathPhys WebOS - Mathematics & Physics Command-Line OS</span>
+<div id="term-controls">
+<span class="ctrl-btn" id="btn-minimize">_</span>
+<span class="ctrl-btn" id="btn-maximize">[]</span>
+<span class="ctrl-btn" id="btn-close">X</span>
+</div>
+</div>
+<div id="term-body">
+<div id="output"></div>
+<div id="input-line">
+<span id="prompt">root@mathphys-os:~$ </span>
+<input type="text" id="input" autofocus spellcheck="false" autocomplete="off">
+</div>
+</div>
+<div id="term-statusbar">
+<span id="status-user">USER: root</span>
+<span id="status-host">HOST: mathphys-os</span>
+<span id="status-cwd">CWD: /</span>
+<span id="status-mem">FORMULAS: 0 loaded</span>
+<span id="status-date"></span>
+</div>
+</div>
+    <script src="js/math.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/commands.js"></script>
+    <script src="js/filesystem.js"></script>
+    <script src="js/shell.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/kernel.js"></script>
+    <script src="js/boot.js"></script>
+</body>
+</html>
